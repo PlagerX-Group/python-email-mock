@@ -3,6 +3,7 @@ import typing as t
 
 from flask import Flask, g
 
+from configuration import BaseConfiguration
 from packages.database import ext_db, SMTPDatabaseConnector
 from packages.router import index_blueprint, smtp_blueprint
 
@@ -16,14 +17,16 @@ def register_extensions(flask_app: Flask) -> t.NoReturn:
     ext_db.init_app(flask_app)
 
 
-def register_application_configuration(flask_app: Flask, flask_configuration) -> t.NoReturn:
+def register_application_configuration(flask_app: Flask, flask_configuration: BaseConfiguration) -> t.NoReturn:
 
-    # Engine for database
     engine = ext_db.create_engine(flask_configuration.SQLALCHEMY_DATABASE_URI,
                                   flask_configuration.SQLALCHEMY_ENGINE_OPTIONS)
 
-    # Connector database
     connector = SMTPDatabaseConnector(engine=engine)
+
+    if flask_configuration.IS_CREATE_TABLES:
+
+        connector.create_tables(base=ext_db)
 
     @flask_app.before_request
     def start_session():

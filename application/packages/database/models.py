@@ -34,7 +34,7 @@ class SMTPMessagesModel(db.Model, _BaseModel):
     mail_from = db.Column(db.Text)
     mail_rcpt_tos = db.Column(db.JSON, default=[])
     mail_subject = db.Column(db.Text, nullable=True)
-    mail_source = db.Column(db.Text)
+    mail_source = db.Column(db.Text, nullable=True)
 
     def __str__(self) -> str:
         return f"<{self.__class__.__name__} " \
@@ -49,7 +49,7 @@ class SMTPMessagesAttachmentsModel(db.Model, _BaseModel):
     __tablename__ = "smtp_messages_attachments"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, index=True)
-    message_id = db.Column(UUID(as_uuid=True), db.ForeignKey('smtp_messages.id'), unique=True, default=uuid.uuid4())
+    message_id = db.Column(db.Integer, db.ForeignKey('smtp_messages.id'), unique=True, default=uuid.uuid4())
     attachment_uuid = db.Column(UUID(as_uuid=True), unique=True, default=uuid.uuid4())
     aws_object_uuid = db.Column(UUID(as_uuid=True), unique=True, default=uuid.uuid4())
 

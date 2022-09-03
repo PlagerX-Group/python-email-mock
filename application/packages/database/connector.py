@@ -1,7 +1,12 @@
 import typing as t
 
+import sqlalchemy
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
+
+from .models import SMTPMessagesModel
+from packages.pymodels.smtp_models import PySMTPMessageModel
 
 
 class Connector:
@@ -33,8 +38,19 @@ class Connector:
         if self.is_connected:
             self.session.flush()
 
+    def create_tables(self, base: SQLAlchemy) -> t.NoReturn:
+        for table in list(base.metadata.tables.keys()):
+            if not sqlalchemy.inspect(self.engine).has_table(table):
+                base.metadata.tables[table].create(self.engine)
+
 
 class SMTPDatabaseConnector(Connector):
 
-    def append_message(self):
-        pass
+    def append_message(self, message: PySMTPMessageModel) -> SMTPMessagesModel:
+        model = SMTPMessagesModel(mail_date='',
+                                  mail_from=message.mail_from,
+                                  mail_rcpt_tos=message.mail_to,
+                                  # mail_subject=message.subject,
+                                  mail_source=None)
+        self.session.add(model)
+        return model

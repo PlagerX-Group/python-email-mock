@@ -40,5 +40,5 @@ class APIController(object):
             return response
 
     def send_message(self, mail_from: str, mail_to: str) -> requests.Response:
-        payload = {'from': mail_from, 'to': mail_to}
+        payload = {'mail_from': mail_from, 'mail_to': mail_to}
         return self.__request(urljoin(self.url_backend, 'smtp/message'), method='post', json=payload)

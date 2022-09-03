@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+from pydantic import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import HTTPException
 
@@ -36,3 +37,9 @@ def handler_405_exc(exc: HTTPException):
 @index_blueprint.app_errorhandler(400)
 def handler_400_exc(exc: HTTPException):
     return jsonify({'detail': f'{exc.name}: {exc.description}', 'status_code': 400}), 400
+
+
+@index_blueprint.app_errorhandler(ValidationError)
+def pydantic_validation_error(exc: ValidationError):
+    return jsonify({'detail': f"ValidationError", 'status_code': 400,
+                    'args': exc.errors()}), 400
