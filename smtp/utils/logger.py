@@ -32,3 +32,7 @@ class smtp_logger(object):
                   f"{content}" \
                   f"{end_string if not content.endswith(end_string) else ''}=======END======="
         cls.__log(message, extra={'log_class': 'SMTP_MESSAGE'})
+
+    @classmethod
+    def api_request(cls, message: str):
+        cls.__log(message, extra={'log_class': 'API_REQUEST'})
