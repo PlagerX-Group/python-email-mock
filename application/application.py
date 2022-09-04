@@ -25,7 +25,6 @@ def register_application_configuration(flask_app: Flask, flask_configuration: Ba
     connector = SMTPDatabaseConnector(engine=engine)
 
     if flask_configuration.IS_CREATE_TABLES:
-
         connector.create_tables(base=ext_db)
 
     @flask_app.before_request

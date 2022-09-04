@@ -33,12 +33,13 @@ class APIController(object):
             return
 
         if response.status_code != expected_status_code:
-            raise HTTPError(f'Expected status code: {expected_status_code}. Got: {response.status_code}')
+            raise HTTPError(f'Expected status code: {expected_status_code}. Got: {response.status_code}. '
+                            f'Reason: {response.text}')
         else:
             response_json = response.json()
             smtp_logger.api_request(f'Request sent successfully (uuid={response_json.get("uuid")})')
             return response
 
-    def send_message(self, mail_from: str, mail_to: str) -> requests.Response:
-        payload = {'mail_from': mail_from, 'mail_to': mail_to}
+    def send_message(self, mail_from: str, mail_to: str, content: str, helo_or_ehlo: str) -> requests.Response:
+        payload = {'mail_from': mail_from, 'mail_to': mail_to, 'mail_data': content, 'helo_or_ehlo': helo_or_ehlo}
         return self.__request(urljoin(self.url_backend, 'smtp/message'), method='post', json=payload)

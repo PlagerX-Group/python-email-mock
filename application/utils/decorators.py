@@ -2,11 +2,11 @@ import functools
 
 from flask import request
 
-from packages.pymodels.smtp_models import BasePydanticModel
+from packages.http.content_type import ContentTypeEnum
 from utils.exceptions import ContentTypeNotPresentException, ContentTypeNotAllowedException
 
 
-def content_type(ct):
+def content_type(ct: ContentTypeEnum):
     def _content_type(func):
         @functools.wraps(func)
         def _wrapper(*args, **kwargs):
@@ -15,7 +15,7 @@ def content_type(ct):
             if headers_content_type is None:
                 raise ContentTypeNotPresentException(f"Not present 'content-type' in headers.")
 
-            if headers_content_type.lower() != ct.lower():
+            if headers_content_type.lower() != ct.value.lower():
                 raise ContentTypeNotAllowedException(detail=f"Content-Type '{headers_content_type}' not allowed. "
                                                             f"Expected: '{ct}'.")
 
