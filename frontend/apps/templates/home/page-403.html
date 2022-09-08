@@ -1,0 +1,27 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Error 403 {% endblock %} 
+
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+    <main>
+        <section class="vh-100 d-flex align-items-center justify-content-center">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 text-center d-flex align-items-center justify-content-center">
+                        <div>
+                            <h1 class="mt-5">
+                                <span class="fw-bolder text-primary">Нет доступа к странице</span>
+                            </h1>
+                            <a class="btn btn-dark animate-hover" href="{{ url_for('authentication_blueprint.login') }}">
+                               <i class="fas fa-chevron-left me-3 ps-2 animate-left-3"></i>Вернуться на страницу авторизации</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+{% endblock content %}
+
+{% block javascripts %}{% endblock javascripts %}
