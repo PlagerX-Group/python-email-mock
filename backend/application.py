@@ -44,10 +44,9 @@ def register_application_configuration(
         _connector = g.pop('connector')
         if exception is None:
             _connector.commit()
-            _connector.close_connection()
         else:
             _connector.flush()
-            _connector.close_connection()
+        _connector.close_connection()
 
 
 def factory_create_application(flask_configuration: BaseConfiguration, connector_type: SConnectorType) -> Flask:

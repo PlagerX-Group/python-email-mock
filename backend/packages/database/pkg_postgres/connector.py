@@ -46,14 +46,21 @@ class SMTPDatabasePostgresConnector(BaseORMConnectorMethods):
             replace('\"', "\'") or None
         mail_from = decode_quoted_printable_string(headers.get('From', '').replace('\n', '').replace('\t', '') or None)
 
-        model = SMTPMessagesRawModel(raw_uuid=uuid.uuid4(),
-                                     content_type=content_type,
-                                     data=parse_multipart_in_email(raw_data),
-                                     mail_from=mail_from,
-                                     mail_tos=list(headers.get('To')),
-                                     mail_message_id=headers.get('Message-ID', '').lstrip('<').rstrip('>'),
-                                     mime_version=headers.get('MIME-Version'),
-                                     subject=decode_quoted_printable_string(headers.get('Subject')),
-                                     external_command=command_mode)
+        if len(headers.defects) == 0:
+            model = SMTPMessagesRawModel(raw_uuid=uuid.uuid4(),
+                                         content_type=content_type,
+                                         data=parse_multipart_in_email(raw_data),
+                                         mail_from=mail_from,
+                                         mail_tos=list(headers.get('To')),
+                                         mail_message_id=headers.get('Message-ID', '').lstrip('<').rstrip('>'),
+                                         mime_version=headers.get('MIME-Version'),
+                                         subject=decode_quoted_printable_string(headers.get('Subject')),
+                                         external_command=command_mode)
+        else:
+            model = SMTPMessagesRawModel(
+                data=parse_multipart_in_email(raw_data),
+                external_command=command_mode,
+                mail_tos=None
+            )
         self.session.add(model)
         return model
