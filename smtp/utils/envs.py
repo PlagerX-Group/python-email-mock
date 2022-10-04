@@ -20,4 +20,5 @@ def set_default_environs():
     }
 
     for k, v in required_variables.items():
-        os.environ[k] = v
+        if not os.getenv(k):
+            os.environ[k] = v
