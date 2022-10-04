@@ -2,7 +2,6 @@ import enum
 import uuid
 
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.dialects.postgresql import UUID
 
 db = SQLAlchemy()
 
@@ -48,7 +47,7 @@ class SMTPMessagesCommandsModel(db.Model, _BaseModel):
     __tablename__ = "smtp_messages_commands"
 
     message_id = db.Column(db.Integer, primary_key=True, autoincrement=True, index=True)
-    message_uuid = db.Column(UUID(as_uuid=True), unique=True, default=uuid.uuid4())
+    message_uuid = db.Column(db.Text(length=36), unique=True, default=lambda: str(uuid.uuid4()))
     helo_or_ehlo = db.Column(db.Enum(CommandHostDomainEnum, name='helo_or_ehlo'), default=CommandHostDomainEnum.HELO)
     mail_from = db.Column(db.Text)
     mail_rcpt_tos = db.Column(db.JSON, default=[])
@@ -76,7 +75,7 @@ class SMTPMessagesRawModel(db.Model, _BaseModel):
     raw_id = db.Column(db.Integer, primary_key=True, autoincrement=True, index=True)
     message_id = db.Column(db.Integer, db.ForeignKey('smtp_messages_commands.message_id'),
                            unique=True, default=uuid.uuid4())
-    raw_uuid = db.Column(UUID(as_uuid=True), unique=True, default=uuid.uuid4())
+    raw_uuid = db.Column(db.Text(length=36), unique=True, default=lambda: str(uuid.uuid4()))
     content_type = db.Column(db.Text, nullable=True)
     data = db.Column(db.Text, nullable=True)
     mail_from = db.Column(db.Text)
@@ -104,8 +103,8 @@ class SMTPMessagesAttachmentsModel(db.Model, _BaseModel):
 
     attachment_id = db.Column(db.Integer, primary_key=True, autoincrement=True, index=True)
     raw_id = db.Column(db.Integer, db.ForeignKey('smtp_messages_raw.raw_id'), unique=True, default=uuid.uuid4())
-    attachment_uuid = db.Column(UUID(as_uuid=True), unique=True, default=uuid.uuid4())
-    aws_object_uuid = db.Column(UUID(as_uuid=True), unique=True, default=uuid.uuid4())
+    attachment_uuid = db.Column(db.Text(length=36), unique=True, default=lambda: str(uuid.uuid4()))
+    aws_object_uuid = db.Column(db.Text(length=36), unique=True, default=lambda: str(uuid.uuid4()))
 
     external_raw = db.relationship('SMTPMessagesRawModel', backref=db.backref('raw', lazy=True))
 

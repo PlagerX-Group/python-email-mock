@@ -7,13 +7,14 @@ from application import factory_create_application
 
 
 def create_run_application() -> Flask:
-    _environ = os.getenv('ENVIRON', 'development')
-    return factory_create_application(configuration.get_configuration(_environ))
+    conf = configuration.get_configuration(os.getenv('ENVIRON', 'development'))
+    conf.set_db_type(os.getenv('DATABASE_TYPE'))
+    return factory_create_application(conf)
 
 
 if __name__ == "__main__":
     flask_host, flask_port, environ = os.getenv('BACKEND_HOSTNAME', '0.0.0.0'), \
                                       os.getenv('BACKEND_PORT', '8087'), \
                                       os.getenv('ENVIRON', 'development')
-    application = factory_create_application(configuration.get_configuration(environ))
+    application = create_run_application()
     application.run(host=flask_host, port=flask_port)
