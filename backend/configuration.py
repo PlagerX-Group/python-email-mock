@@ -14,7 +14,7 @@ class BaseConfiguration(object):
     SQLITE_PATH: str = None
 
     def set_db_type(self, db_type: str):
-        if db_type is None:
+        if db_type in [None, ""]:
             db_type = 'sqlite3'
 
         if db_type == 'postgresql':
@@ -25,7 +25,7 @@ class BaseConfiguration(object):
             if sqlite_path := os.getenv('SQLITE3_DB_PATH'):
                 self.SQLITE_PATH = sqlite_path
             else:
-                self.SQLITE_PATH = 'local-sqlite3.db'
+                self.SQLITE_PATH = os.path.join(os.curdir, 'local-sqlite3.db')
             self.SQLALCHEMY_DATABASE_URI = f"sqlite:///{self.SQLITE_PATH}"
             return
         raise DatabaseNotConfigureException(f"Database type incorrect: {db_type}."
