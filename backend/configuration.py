@@ -1,8 +1,6 @@
 import os
 
-
-class DatabaseNotConfigureException(Exception):
-    pass
+from packages.database.bases.enums import SConnectorType
 
 
 class BaseConfiguration(object):
@@ -13,23 +11,18 @@ class BaseConfiguration(object):
     IS_CREATE_TABLES: bool = None
     SQLITE_PATH: str = None
 
-    def set_db_type(self, db_type: str):
-        if db_type in [None, ""]:
-            db_type = 'sqlite3'
+    def set_db_type(self, connector_type: SConnectorType):
 
-        if db_type == 'postgresql':
+        if connector_type == SConnectorType.POSTGRES:
+            # TODO: добавить параметры окружения для подключения к POSTGRES.
             self.SQLALCHEMY_DATABASE_URI = f'postgresql://postgres:password@0.0.0.0:6432/smtp_mock'
-            return
-        if db_type == 'sqlite3':
+        elif connector_type == SConnectorType.SQLITE3:
             self.SQLALCHEMY_ENGINE_OPTIONS = {}
             if sqlite_path := os.getenv('SQLITE3_DB_PATH'):
                 self.SQLITE_PATH = sqlite_path
             else:
                 self.SQLITE_PATH = os.path.join(os.curdir, 'local-sqlite3.db')
             self.SQLALCHEMY_DATABASE_URI = f"sqlite:///{self.SQLITE_PATH}"
-            return
-        raise DatabaseNotConfigureException(f"Database type incorrect: {db_type}."
-                                            f"Expected only: 'postgresql', 'sqlite3'.")
 
 
 class DevelopmentConfiguration(BaseConfiguration):
