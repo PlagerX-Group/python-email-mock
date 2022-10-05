@@ -19,9 +19,10 @@ class SMTPDatabasePostgresConnector(BaseORMConnectorMethods):
             filter(SMTPMessagesCommandsModel.message_uuid == command_uuid). \
             one_or_none()
 
-    def get_message_by_uuid(self, raw_uuid: uuid.UUID) -> SMTPMessagesRawModel:
-        return self.session.query(SMTPMessagesRawModel).\
-            filter(SMTPMessagesRawModel.raw_uuid == raw_uuid).\
+    def get_message_by_uuid(self, message_uuid: uuid.UUID) -> SMTPMessagesRawModel:
+        return self.session.query(SMTPMessagesRawModel). \
+            filter(SMTPMessagesRawModel.message_id == SMTPMessagesCommandsModel.message_id).\
+            filter(SMTPMessagesCommandsModel.message_uuid == message_uuid). \
             one_or_none()
 
     def append_command(self, message: PySMTPMessageModel) -> SMTPMessagesCommandsModel:
@@ -33,29 +34,41 @@ class SMTPDatabasePostgresConnector(BaseORMConnectorMethods):
         self.session.add(model)
         return model
 
-    def append_raw_message(self,
-                           command_mode: SMTPMessagesCommandsModel,
-                           message: PySMTPMessageModel) -> SMTPMessagesRawModel:
+    def append_raw_message(
+            self,
+            command_mode: SMTPMessagesCommandsModel,
+            message: PySMTPMessageModel
+    ) -> SMTPMessagesRawModel:
         raw_data = message.mail_data
         headers = Parser().parsestr(raw_data)
-        content_type = headers. \
+
+        content_type = headers.\
             get('Content-Type', ''). \
             replace('\n', ''). \
             replace('\t', ''). \
             replace('\r', ''). \
             replace('\"', "\'") or None
-        mail_from = decode_quoted_printable_string(headers.get('From', '').replace('\n', '').replace('\t', '') or None)
+
+        mail_from = decode_quoted_printable_string(
+            headers.get('From', '').replace('\n', '').replace('\t', '') or None
+        )
+
+        mail_to = headers.get('To')
+        if type(mail_to) is str:
+            mail_to = [mail_to]
 
         if len(headers.defects) == 0:
-            model = SMTPMessagesRawModel(raw_uuid=uuid.uuid4(),
-                                         content_type=content_type,
-                                         data=parse_multipart_in_email(raw_data),
-                                         mail_from=mail_from,
-                                         mail_tos=list(headers.get('To')),
-                                         mail_message_id=headers.get('Message-ID', '').lstrip('<').rstrip('>'),
-                                         mime_version=headers.get('MIME-Version'),
-                                         subject=decode_quoted_printable_string(headers.get('Subject')),
-                                         external_command=command_mode)
+            model = SMTPMessagesRawModel(
+                raw_uuid=uuid.uuid4(),
+                content_type=content_type,
+                data=parse_multipart_in_email(raw_data),
+                mail_from=mail_from,
+                mail_tos=mail_to,
+                mail_message_id=headers.get('Message-ID', '').lstrip('<').rstrip('>'),
+                mime_version=headers.get('MIME-Version'),
+                subject=decode_quoted_printable_string(headers.get('Subject')),
+                external_command=command_mode
+            )
         else:
             model = SMTPMessagesRawModel(
                 data=parse_multipart_in_email(raw_data),

@@ -92,13 +92,13 @@ class BaseSMTPMessagesRawModel(BaseORMModel):
     @property
     def as_json(self) -> dict:
         return {'uuid': self.raw_uuid,
-                'Content-Type': self.content_type,
-                'Mime-Version': self.mime_version,
-                'DATA': self.data,
-                'MAIL FROM': self.mail_from,
-                'MAIL TO': self.mail_tos,
-                'Message-Id': self.message_id,
-                'SUBJECT': self.subject}
+                'content_type': self.content_type,
+                'mime_version': self.mime_version,
+                'data': self.data,
+                'mail_from': self.mail_from,
+                'mail_to': self.mail_tos,
+                'message_id': self.message_id,
+                'subject': self.subject}
 
 
 class BaseSMTPMessagesAttachmentsModel(BaseORMModel):

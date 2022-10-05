@@ -1,3 +1,4 @@
+import enum
 import pydantic
 import typing as t
 
